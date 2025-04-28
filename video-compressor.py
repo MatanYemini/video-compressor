@@ -1,6 +1,59 @@
 import subprocess
 import sys
 import os
+import argparse
+
+def extract_audio(input_path, output_path, audio_bitrate=192):
+    """
+    Extract audio from a video file.
+    
+    Args:
+        input_path (str): Path to the input video file
+        output_path (str): Path where the extracted audio will be saved
+        audio_bitrate (int): Audio bitrate in kbps
+    
+    Returns:
+        bool: True if extraction was successful, False otherwise
+    """
+    # Check if input file exists
+    if not os.path.isfile(input_path):
+        print(f"Error: Input file '{input_path}' does not exist.")
+        return False
+    
+    # If output path doesn't have an extension, add .mp3
+    if not os.path.splitext(output_path)[1]:
+        output_path = f"{output_path}.mp3"
+    
+    print(f"Extracting audio from {input_path} to {output_path}")
+    print(f"Audio bitrate: {audio_bitrate} kbps")
+    
+    try:
+        result = subprocess.run([
+            "ffmpeg", "-i", input_path,
+            "-vn",  # No video
+            "-c:a", "libmp3lame",  # Use MP3 codec
+            "-b:a", f"{audio_bitrate}k",
+            "-y",  # Overwrite output file if it exists
+            output_path
+        ], capture_output=True, text=True)
+        
+        if result.returncode != 0:
+            print(f"Error during audio extraction: {result.stderr}")
+            return False
+            
+        # Verify the output file was created
+        if not os.path.isfile(output_path):
+            print("Error: Output file was not created.")
+            return False
+            
+        actual_size = os.path.getsize(output_path) / (1024 * 1024)
+        print(f"Audio extraction complete!")
+        print(f"Output audio size: {actual_size:.2f} MB")
+        return True
+            
+    except Exception as e:
+        print(f"Error during audio extraction: {str(e)}")
+        return False
 
 def compress_video(input_path, output_path, target_size_mb):
     """
@@ -96,24 +149,48 @@ def compress_video(input_path, output_path, target_size_mb):
         print(f"Error during compression: {str(e)}")
         return False
 
-if __name__ == "__main__":
-    if len(sys.argv) != 4:
-        print(f"Usage: python {sys.argv[0]} input_video output_video target_size_mb")
-        print("Example: python video-compressor.py input.mp4 output.mp4 100")
-        sys.exit(1)
-
-    input_video = sys.argv[1]
-    output_video = sys.argv[2]
+def main():
+    parser = argparse.ArgumentParser(description="Compress video or extract audio from a video file")
+    parser.add_argument("input_video", help="Path to the input video file")
+    parser.add_argument("output_path", help="Path for the output file")
     
-    try:
-        target_size_mb = float(sys.argv[3])
-        if target_size_mb <= 0:
+    # Create a mutually exclusive group for compression vs audio extraction
+    group = parser.add_mutually_exclusive_group(required=True)
+    group.add_argument("-s", "--size", type=float, help="Target size in megabytes (for video compression)")
+    group.add_argument("-a", "--audio-only", action="store_true", help="Extract audio only (no video)")
+    
+    # Additional audio options
+    parser.add_argument("--audio-bitrate", type=int, default=192, help="Audio bitrate in kbps (default: 192)")
+    
+    args = parser.parse_args()
+    
+    # Check if input file exists
+    if not os.path.isfile(args.input_video):
+        print(f"Error: Input file '{args.input_video}' does not exist.")
+        sys.exit(1)
+    
+    if args.audio_only:
+        success = extract_audio(args.input_video, args.output_path, args.audio_bitrate)
+    else:
+        if args.size <= 0:
             print("Error: Target size must be a positive number.")
             sys.exit(1)
-    except ValueError:
-        print("Error: Target size must be a valid number.")
-        sys.exit(1)
-
-    success = compress_video(input_video, output_video, target_size_mb)
+        success = compress_video(args.input_video, args.output_path, args.size)
+    
     if not success:
         sys.exit(1)
+
+if __name__ == "__main__":
+    if len(sys.argv) == 1:
+        # If no arguments provided, show help
+        print("Video Compressor Tool\n")
+        print("For video compression:")
+        print("  python video-compressor.py -s SIZE input.mp4 output.mp4")
+        print("  Example: python video-compressor.py -s 99 input.mp4 output.mp4")
+        print("\nFor audio extraction:")
+        print("  python video-compressor.py -a input.mp4 output.mp3")
+        print("  Example: python video-compressor.py -a input.mp4 output.mp3")
+        print("\nFor more options, use: python video-compressor.py -h")
+        sys.exit(0)
+    
+    main()
