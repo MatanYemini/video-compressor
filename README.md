@@ -22,7 +22,7 @@ cd video-compressor
 make install
 ```
 
-## Usage
+## Usages
 
 ### Video Compression
 
