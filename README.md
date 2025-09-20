@@ -64,7 +64,7 @@ To customize audio bitrate when extracting audio:
 python video-compressor.py -a --audio-bitrate 320 input.mp4 output.mp3
 ```
 
-Full help:
+For Full help:
 
 ```
 python video-compressor.py -h
