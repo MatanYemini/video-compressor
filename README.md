@@ -81,7 +81,7 @@ The script:
 3. Uses the remaining bitrate for video
 4. Uses H.264 (libx264) for video compression and AAC for audio compression
 
-### Audio Extraction
+### Audio Extractions
 
 When extracting audio:
 
