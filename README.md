@@ -40,7 +40,7 @@ python video-compressor.py -s 99 input.mp4 output.mp4
 
 This will compress `input.mp4` to approximately 99MB and save it as `output.mp4`.
 
-### Audio Extractions
+### Audio Extraction
 
 To extract only the audio from a video:
 
