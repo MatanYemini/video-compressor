@@ -2,11 +2,16 @@
 
 help:
 	@echo "Available commands:"
-	@echo "  make install         - Install ffmpeg and Python requirements"
-	@echo "  make install-ffmpeg  - Install only ffmpeg"
-	@echo "  make help            - Show this help message"
+	@echo "  make install              - Install ffmpeg and Python requirements"
+	@echo "  make install-ffmpeg       - Install only ffmpeg"
+	@echo "  make install-requirements - Install Python requirements (Flask)"
+	@echo "  make help                 - Show this help message"
 
-install: install-ffmpeg
+install: install-ffmpeg install-requirements
+
+install-requirements:
+	@echo "Installing Python requirements..."
+	pip install -r requirements.txt
 
 install-ffmpeg:
 	@echo "Checking operating system..."
