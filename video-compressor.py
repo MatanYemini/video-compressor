@@ -723,7 +723,7 @@ HTML_TEMPLATE = '''
 </html>
 '''
 
-def run_ui(port=8081, browse_path=None, output_path=None):
+def run_ui(port=8999, browse_path=None, output_path=None):
     """Run the web UI for audio extraction."""
     if not flask_available:
         print("Error: Flask is not installed. Install it with: pip install flask")
@@ -864,13 +864,13 @@ if __name__ == "__main__":
         print("  Example: python video-compressor.py -a input.mp4 output.mp3")
         print("\nFor web UI (batch audio extraction):")
         print("  python video-compressor.py --ui")
-        print("  python video-compressor.py --ui --port 8081")
+        print("  python video-compressor.py --ui --port 8999")
         print("\nFor more options, use: python video-compressor.py -h")
         sys.exit(0)
 
     # Check for UI mode
     if '--ui' in sys.argv:
-        port = 8081
+        port = 8999
         if '--port' in sys.argv:
             port_idx = sys.argv.index('--port')
             if port_idx + 1 < len(sys.argv):
